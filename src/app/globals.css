@@ -1,0 +1,9 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500&display=swap');
+
+.google-sans-text {
+  font-family: 'Google Sans', 'Product Sans', 'Open Sans', system-ui, -apple-system, sans-serif;
+  letter-spacing: -0.015em;
+}
