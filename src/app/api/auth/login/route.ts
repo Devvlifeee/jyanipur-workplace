@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
-import bcrypt from 'bcrypt'; // For secure password checking
-import jwt from 'jsonwebtoken'; // For signing session tokens
+import { db } from '@/prisma/db'; // Connects to your Neon database
+import jwt from 'jsonwebtoken';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-super-secret-key';
 
@@ -16,21 +16,28 @@ export async function POST(request: Request) {
       );
     }
 
-    // 2. TODO: Fetch user from your database (e.g., Prisma / MongoDB)
-    // const user = await db.user.findUnique({ where: { email } });
-    // if (!user) return NextResponse.json({ success: false, message: 'User not found' }, { status: 404 });
+    // 2. SECURITY CHECK: Make sure the email actually exists in your database!
+    // This stops random people from typing fake emails and logging in.
+    const user = await db.workspaceEmail.findUnique({ where: { email } });
+    if (!user || !user.isActive) {
+      return NextResponse.json(
+        { success: false, message: 'This email account has not been created by your workspace admin.' },
+        { status: 404 }
+      );
+    }
 
-    // 3. Verify password hash (simulated here)
-    // const isValidPassword = await bcrypt.compare(password, user.passwordHash);
-    // if (!isValidPassword) return NextResponse.json({ success: false, message: 'Invalid password' }, { status: 401 });
+    // 3. SECURITY CHECK: Verify the password matches what the admin generated
+    if (user.password !== password) {
+      return NextResponse.json({ success: false, message: 'Incorrect password.' }, { status: 401 });
+    }
 
     // 4. Generate a secure JSON Web Token (JWT) session
-    const token = jwt.sign({ email, domain: email.split('@')[1] }, JWT_SECRET, {
+    const token = jwt.sign({ id: user.id, email: user.email, domain: email.split('@')[1] }, JWT_SECRET, {
       expiresIn: '7d',
     });
 
     // 5. Create the response and set a secure HTTP-only cookie
-    const response = NextResponse.json({ success: true, redirectUrl: '/' }, { status: 200 });
+    const response = NextResponse.json({ success: true, redirectUrl: '/profile' }, { status: 200 });
     
     response.cookies.set({
       name: 'jyanipur_session',

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, Suspense } from 'react';
+import React, { useState, useRef, useEffect, Suspense } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { 
@@ -19,7 +19,12 @@ import {
   Smile, 
   Image as ImageIcon, 
   Trash2, 
-  MoreVertical
+  MoreVertical,
+  KeyRound,
+  UserCog,
+  Sliders,
+  Shield,
+  LogOut
 } from 'lucide-react';
 import './globals.css';
 
@@ -69,17 +74,6 @@ function JPErpRailIcon({ className = "w-6 h-6" }: { className?: string }) {
   );
 }
 
-function JPDprRailIcon({ className = "w-6 h-6" }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
-      <path d="M10 6C10 4.3 11.8 3 14 3H24L32 11V34C32 35.7 30.2 37 28 37H14C11.8 37 10 35.7 10 34V6Z" stroke="#041E49" strokeWidth="4" strokeLinejoin="round" />
-      <path d="M24 3V11H32" stroke="#041E49" strokeWidth="4" strokeLinejoin="round" />
-      <path d="M15 19H25" stroke="#115E59" strokeWidth="4.5" strokeLinecap="round" />
-      <path d="M15 27H22" stroke="#D97706" strokeWidth="4.5" strokeLinecap="round" />
-    </svg>
-  );
-}
-
 function JPPeopleRailIcon({ className = "w-6 h-6" }: { className?: string }) {
   return (
     <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
@@ -87,6 +81,16 @@ function JPPeopleRailIcon({ className = "w-6 h-6" }: { className?: string }) {
       <path d="M6 31C6 26.5817 9.58172 23 14 23C18.4183 23 22 26.5817 22 31" stroke="#115E59" strokeWidth="5" strokeLinecap="round" />
       <circle cx="28" cy="14" r="3.5" stroke="#C2410C" strokeWidth="3.5" />
       <path d="M23 31C23 27.6863 25.6863 25 29 25C32.3137 25 35 27.6863 35 31" stroke="#D97706" strokeWidth="4.5" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function JPAdminRailIcon({ className = "w-6 h-6" }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
+      <path d="M20 5L33 12V28L20 35L7 28V12L20 5Z" stroke="#041E49" strokeWidth="3.2" strokeLinejoin="round" />
+      <circle cx="20" cy="20" r="4.5" stroke="#115E59" strokeWidth="3" />
+      <path d="M20 8V11.5 M20 28.5V32 M8.5 14L11.5 16 M28.5 24L31.5 26 M8.5 26L11.5 24 M28.5 16L31.5 14" stroke="#C2410C" strokeWidth="2.8" strokeLinecap="round" />
     </svg>
   );
 }
@@ -104,8 +108,8 @@ const APPS: AppConfig[] = [
   { name: 'Mail', key: 'mail', href: '/mail/inbox', icon: JPMailRailIcon, searchPlaceholder: 'Search mail' },
   { name: 'Chat', key: 'chat', href: '/chat', icon: JPChatRailIcon, searchPlaceholder: 'Search in chat' },
   { name: 'ERP', key: 'erp', href: '/erp', icon: JPErpRailIcon, searchPlaceholder: 'Search orders, inventory, vendors...' },
-  { name: 'DPR', key: 'dpr', href: '/dpr', icon: JPDprRailIcon, searchPlaceholder: 'Search daily progress reports...' },
   { name: 'People', key: 'people', href: '/people', icon: JPPeopleRailIcon, searchPlaceholder: 'Search staff, departments...' },
+  { name: 'Admin', key: 'admin', href: '/admin', icon: JPAdminRailIcon, searchPlaceholder: 'Search admin settings, logs, accounts...' },
 ];
 
 function JPPortalLogo() {
@@ -204,7 +208,128 @@ function JPPeopleLogo() {
   );
 }
 
-function RootLayoutContent({ children }: { children: React.ReactNode }) {
+function JPAdminLogo() {
+  return (
+    <div className="flex items-center gap-3 cursor-pointer select-none group">
+      <div className="relative w-14 h-14 flex items-center justify-center flex-shrink-0">
+        <svg width="56" height="56" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full transition-transform duration-200 group-hover:scale-105">
+          <path d="M20 5L33 12V28L20 35L7 28V12L20 5Z" stroke="#041E49" strokeWidth="3.2" strokeLinejoin="round" />
+          <circle cx="20" cy="20" r="4.5" stroke="#115E59" strokeWidth="3" />
+          <path d="M20 8V11.5 M20 28.5V32 M8.5 14L11.5 16 M28.5 24L31.5 26 M8.5 26L11.5 24 M28.5 16L31.5 14" stroke="#C2410C" strokeWidth="2.8" strokeLinecap="round" />
+        </svg>
+      </div>
+      <div className="google-sans-text text-[28px] font-normal leading-none flex items-baseline">
+        <span className="text-[#1F1F1F]">JP</span>
+        <span className="text-[#041E49] ml-0.5">admin</span>
+      </div>
+    </div>
+  );
+}
+
+// Dynamic Profile Dropdown Component
+function ProfileDropdown() {
+  const [isOpen, setIsOpen] = useState(false);
+  const [email, setEmail] = useState('user@jyanipur.com');
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    try {
+      const storedEmail = localStorage.getItem('jyanipur_user_email');
+      if (storedEmail) {
+        setEmail(storedEmail);
+      }
+    } catch (e) {
+      // Ignore parsing errors
+    }
+  }, []);
+
+  const initial = email ? email.charAt(0).toUpperCase() : 'U';
+
+  useEffect(() => {
+    const handleOutsideClick = (e: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleOutsideClick);
+    return () => document.removeEventListener('mousedown', handleOutsideClick);
+  }, []);
+
+  const handleLogout = () => {
+    document.cookie = 'jyanipur_session=; Max-Age=0; path=/;';
+    localStorage.removeItem('jyanipur_user_email');
+    window.location.href = '/login';
+  };
+
+  return (
+    <div className="relative" ref={dropdownRef}>
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="w-8 h-8 rounded-full bg-blue-700 text-white font-bold text-xs flex items-center justify-center cursor-pointer shadow-xs ml-1 hover:opacity-90 transition focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+      >
+        {initial}
+      </button>
+
+      {isOpen && (
+        <div className="absolute right-0 mt-2 w-80 bg-white rounded-2xl shadow-xl border border-gray-200 py-2 z-50 text-gray-800 animate-in fade-in zoom-in-95 duration-150">
+          <div className="px-4 py-2 border-b border-gray-100 text-center">
+            <span className="text-[11px] font-medium text-blue-600 bg-blue-50 px-2.5 py-1 rounded-full">
+              🛡️ Jyanipur Enterprise Managed
+            </span>
+          </div>
+
+          <div className="px-5 py-4 flex items-center gap-3 border-b border-gray-100">
+            <div className="w-12 h-12 rounded-full bg-blue-100 text-blue-700 font-bold flex items-center justify-center text-lg">
+              {initial}
+            </div>
+            <div className="overflow-hidden">
+              <h4 className="font-semibold text-sm text-gray-900 truncate">Workspace User</h4>
+              <p className="text-xs text-gray-500 truncate">{email}</p>
+            </div>
+          </div>
+
+          <div className="py-2 text-sm">
+            <button className="w-full px-5 py-2.5 flex items-center gap-3 hover:bg-gray-50 text-left transition cursor-pointer">
+              <KeyRound className="w-4 h-4 text-gray-500" />
+              <span>Passwords and autofill</span>
+            </button>
+
+            <Link 
+              href="/profile/manage" 
+              onClick={() => setIsOpen(false)}
+              className="w-full px-5 py-2.5 flex items-center gap-3 hover:bg-gray-50 text-left transition text-blue-600 font-medium"
+            >
+              <UserCog className="w-4 h-4 text-blue-600" />
+              <span>Manage your Jyanipur Account</span>
+            </Link>
+
+            <button className="w-full px-5 py-2.5 flex items-center gap-3 hover:bg-gray-50 text-left transition cursor-pointer">
+              <Sliders className="w-4 h-4 text-gray-500" />
+              <span>Customize profile</span>
+            </button>
+
+            <button className="w-full px-5 py-2.5 flex items-center gap-3 hover:bg-gray-50 text-left transition border-b border-gray-100 pb-3 cursor-pointer">
+              <Shield className="w-4 h-4 text-gray-500" />
+              <span>Workspace security</span>
+            </button>
+          </div>
+
+          <div className="pt-2 px-3">
+            <button
+              onClick={handleLogout}
+              className="w-full py-2 px-3 bg-gray-50 hover:bg-red-50 hover:text-red-600 text-gray-700 rounded-xl text-xs font-medium transition flex items-center justify-center gap-2 cursor-pointer"
+            >
+              <LogOut className="w-3.5 h-3.5" /> Sign out of all accounts
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// Extracted inner component that safely uses useSearchParams()
+function MainLayoutWithSearchParams({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -218,7 +343,6 @@ function RootLayoutContent({ children }: { children: React.ReactNode }) {
   const [subject, setSubject] = useState('');
   const [body, setBody] = useState('');
 
-  // Check if we are currently on the login page route
   const isLoginPage = pathname === '/login';
 
   const openCompose = () => {
@@ -249,7 +373,6 @@ function RootLayoutContent({ children }: { children: React.ReactNode }) {
     return pathname.startsWith(`/${app.key}`);
   }) || APPS[0];
 
-  // IF IT'S THE LOGIN PAGE, RETURN AN INDEPENDENT CLEAN FULLSCREEN CONTAINER
   if (isLoginPage) {
     return (
       <main className="w-screen h-screen overflow-hidden bg-white text-slate-900">
@@ -258,7 +381,6 @@ function RootLayoutContent({ children }: { children: React.ReactNode }) {
     );
   }
 
-  // OTHERWISE, RENDER THE FULL WORKSPACE DASHBOARD LAYOUT
   return (
     <div className="flex flex-col h-screen w-screen overflow-hidden bg-[#F6F8FC] font-sans antialiased text-slate-800 select-none relative">
       
@@ -284,6 +406,8 @@ function RootLayoutContent({ children }: { children: React.ReactNode }) {
               <JPERPLogo />
             ) : activeApp.key === 'people' ? (
               <JPPeopleLogo />
+            ) : activeApp.key === 'admin' ? (
+              <JPAdminLogo />
             ) : (
               <JPPortalLogo />
             )}
@@ -315,9 +439,8 @@ function RootLayoutContent({ children }: { children: React.ReactNode }) {
             <Settings className="w-5 h-5 stroke-[1.75]" />
           </button>
 
-          <div className="w-8 h-8 rounded-full bg-blue-700 text-white font-bold text-xs flex items-center justify-center cursor-pointer shadow-xs ml-1">
-            P
-          </div>
+          {/* Dynamic Profile Dropdown */}
+          <ProfileDropdown />
         </div>
       </header>
 
@@ -513,17 +636,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <head>
-        <style>{`
-          @import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500&display=swap');
-          .google-sans-text {
-            font-family: 'Google Sans', 'Product Sans', 'Open Sans', system-ui, -apple-system, sans-serif;
-            letter-spacing: -0.015em;
-          }
-        `}</style>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500&display=swap" rel="stylesheet" />
       </head>
       <body>
         <Suspense fallback={<div className="flex items-center justify-center h-screen">Loading workspace...</div>}>
-          <RootLayoutContent>{children}</RootLayoutContent>
+          <MainLayoutWithSearchParams>{children}</MainLayoutWithSearchParams>
         </Suspense>
       </body>
     </html>

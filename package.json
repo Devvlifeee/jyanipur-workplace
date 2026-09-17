@@ -4,6 +4,9 @@
   "version": "0.1.0",
   "private": true,
   "main": "main.js",
+  "prisma": {
+    "schema": "src/prisma/contract.prisma"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -14,20 +17,24 @@
     "electron:dev": "electron ."
   },
   "dependencies": {
+    "@prisma/adapter-pg": "^7.10.0",
     "@prisma/client": "^7.10.0",
     "@prisma/orm-postgres": "^8.0.0-rc.11",
     "dotenv": "^17.4.2",
     "imapflow": "^1.0.171",
     "lucide-react": "^0.441.0",
     "next": "^14.2.10",
-    "nodemailer": "^6.9.15",
+    "next-auth": "^5.0.0-beta.32",
+    "nodemailer": "^6.10.1",
+    "pg": "^8.23.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },
   "devDependencies": {
     "@prisma/cli-engine": "^0.4.0",
     "@types/node": "^20.16.5",
-    "@types/nodemailer": "^6.4.15",
+    "@types/nodemailer": "^6.4.24",
+    "@types/pg": "^8.23.1",
     "@types/react": "^18.3.5",
     "@types/react-dom": "^18.3.0",
     "autoprefixer": "^10.6.0",
@@ -35,7 +42,7 @@
     "eslint": "^8.57.0",
     "eslint-config-next": "^14.2.10",
     "postcss": "^8.4.45",
-    "prisma": "^8.0.0-rc.15",
+    "prisma": "^7.10.0",
     "tailwindcss": "^3.4.11",
     "typescript": "^5.6.2"
   }

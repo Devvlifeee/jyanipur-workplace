@@ -5,8 +5,17 @@ export function middleware(request: NextRequest) {
   const sessionCookie = request.cookies.get('jyanipur_session');
   const { pathname } = request.nextUrl;
 
-  // Allow public access to the login page and the incoming CloudMailin webhook
-  if (pathname.startsWith('/login') || pathname.startsWith('/api/auth') || pathname.startsWith('/api/mail/incoming')) {
+  // TEMPORARY LOCAL DEV BYPASS: Allow access to admin pages without a cookie
+  if (pathname.startsWith('/admin') || pathname.startsWith('/api/workspace-emails')) {
+    return NextResponse.next();
+  }
+
+  // Allow public access to login, auth APIs, and webhooks
+  if (
+    pathname.startsWith('/login') || 
+    pathname.startsWith('/api/auth') || 
+    pathname.startsWith('/api/mail/incoming')
+  ) {
     return NextResponse.next();
   }
 

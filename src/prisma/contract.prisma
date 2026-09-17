@@ -1,3 +1,11 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
 model User {
   id        Int      @id @default(autoincrement())
   email     String   @unique
@@ -19,7 +27,8 @@ model Post {
 model WorkspaceEmail {
   id        Int      @id @default(autoincrement())
   email     String   @unique
-  forwardTo String
+  password  String?   // Store the account password/hash
+  forwardTo String?
   isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
 }

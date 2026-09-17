@@ -51,17 +51,6 @@ export function JPErpRailIcon({ className = "w-6 h-6" }: { className?: string })
   );
 }
 
-export function JPDprRailIcon({ className = "w-6 h-6" }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
-      <path d="M10 6C10 4.3 11.8 3 14 3H24L32 11V34C32 35.7 30.2 37 28 37H14C11.8 37 10 35.7 10 34V6Z" stroke="#041E49" strokeWidth="4" strokeLinejoin="round" />
-      <path d="M24 3V11H32" stroke="#041E49" strokeWidth="4" strokeLinejoin="round" />
-      <path d="M15 19H25" stroke="#115E59" strokeWidth="4.5" strokeLinecap="round" />
-      <path d="M15 27H22" stroke="#D97706" strokeWidth="4.5" strokeLinecap="round" />
-    </svg>
-  );
-}
-
 export function JPPeopleRailIcon({ className = "w-6 h-6" }: { className?: string }) {
   return (
     <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
@@ -85,7 +74,6 @@ export const APPS: AppConfig[] = [
   { name: 'Mail', key: 'mail', href: '/mail/inbox', icon: JPMailRailIcon },
   { name: 'Chat', key: 'chat', href: '/chat', icon: JPChatRailIcon },
   { name: 'ERP', key: 'erp', href: '/erp', icon: JPErpRailIcon },
-  { name: 'DPR', key: 'dpr', href: '/dpr', icon: JPDprRailIcon },
   { name: 'People', key: 'people', href: '/People', icon: JPPeopleRailIcon },
 ];
 
